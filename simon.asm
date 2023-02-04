@@ -29,8 +29,8 @@ LAUTO = PAG4-PAG7
 BL4 =   LAUTO/128
 LAST =  LAUTO-128*BL4
 ;
-    *=  $2000
-    .INCLUDE #D:KEM2
+    ORG $2000
+    ICL 'kem2.asm'
 RY
     .BYTE 0,0
 LEN
@@ -598,7 +598,7 @@ GAUTO
     LDA $D301
     AND FTURBO
     STA $D301
-6150     JSR INITSIOV
+    JSR INITSIOV
     LDX # <LLOAD
     LDY # >LLOAD
     STX $0308
@@ -879,7 +879,7 @@ START
     JSR SETUR
     TYA 
     BEQ NOTITLE
-    LSR A
+    LSR
     STA RY+1
     LDA #10
     SEC 
