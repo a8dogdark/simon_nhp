@@ -2,9 +2,10 @@
 ;
 pagina4_init = $037D
 ;
+l_lload = (.len pagina4)
 .proc pagina4, pagina4_init
     .BY $55,$55,$FE
-INIPAGINA4
+PAGINA4
     LDA $D301
     AND #$02
     BEQ ??PAGINA4
@@ -51,7 +52,10 @@ INIPAGINA4
     .BY $60,$00,$52,$40
     .WO $CC00
     .BY $23,$00
-    .WO PLLOAD
+PLLOAD
+    ;.WO LLOAD
+    .wo l_lload
     .BY $00,$80,$00,$12
-    .WO PLVBLANK
+LVBLANK
+    .WO LVBLANK
 .endp
