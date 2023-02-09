@@ -1,128 +1,141 @@
 paginaloader_init = $CC00
+BUFFER = $0700
+BUFAUX = $1100
 
 .proc paginaloader, paginaloader_init
-    .by $55,$55
-    ldx #$00
-    txs
-    stx COLDST
+    .BY $55,$55
+    LDX #$00
+    TXS
+    STX COLDST
     inx
-    stx BOOT
+    STX BOOT
     inx
-    stx GRACTL
-    jsr L1200
+    STX GRACTL
+    jsr $1200
     jmp START
 NBYTES
-    .by $FC
+    .BY $FC
 FLAGY
-    .byte $00
+    .BY $00
 FINISH
-    .byte $00,$00
+    .BY $00,$00
 TABLASIO
-    .by $60,$00,$52,$40
-    .wo $0700
-    .by $23,$00
-    .wo $0100
-    .by $00,$80
-DLIST:      .byte $70,$70,$70,$70,$70,$70,$70,$70
-            .byte $70,$70,$70,$70,$47
-            .word $CC46
-            .byte $70,$70,$70,$70,$70,$70,$70,$70
-            .byte $70,$70,$70,$70,$42
-DLERR:      .word $CC5A
-            .byte $41
-            .word $CC25
-TITLE:      SBYTE "       dogdark      "
-NAME:       SBYTE "     CARGARA DENTRO "
-            SBYTE "DE "
-BLQ:        SBYTE "017 BLOQUES      "
-MERR:       SBYTE " RETROCEDA 3 VUELTAS"
-            SBYTE " Y PRESIONE  ÓÔÁÒÔ  "
-LNEW:       ldx #$04
-XNEW:       lda COLOR0,X
+    .BY $60,$00,$52,$40
+    .WO $0700
+    .BY $23,$00
+    .WO $0100
+    .BY $00,$80
+DLIST
+    .BY $70,$70,$70,$70,$70,$70,$70,$70
+    .BY $70,$70,$70,$70,$47
+    .WO $CC46
+    .BY $70,$70,$70,$70,$70,$70,$70,$70
+    .BY $70,$70,$70,$70,$42
+DLERR
+    .WO $CC5A
+    .BY $41
+    .WO $CC25
+TITLE
+    .SB "       dogdark      "
+NAME
+    .SB "     CARGARA DENTRO "
+    .SB "DE "
+BLQ
+    .BY "000"
+    .SB " BLOQUES      "
+MERR
+    .SB " RETROCEDA 3 VUELTAS"
+    .SB " Y PRESIONE "
+    .SB +128," START "
+    .SB " "
+LNEW
+    LDX #$04
+XNEW
+    LDA COLOR0,X
             sta PFIN+1,X
             dex
             bpl XNEW
-            lda SDLSTL
+            LDA SDLSTL
             sta PFIN+6
-            lda SDLSTH
+            LDA SDLSTH
             sta PFIN+7
-            lda SDMCTL
+            LDA SDMCTL
             sta PFIN+8
-            lda CHBAS
+            LDA CHBAS
             sta PFIN+9
-            lda CHACT
+            LDA CHACT
             sta PFIN+10
             rts
-NEWL:       ldx #$04
-YNEW:       lda PFIN+1,X
+NEWL:       LDX #$04
+YNEW:       LDA PFIN+1,X
             sta COLOR0,X
             dex
             bpl YNEW
-            lda PFIN+6
+            LDA PFIN+6
             sta SDLSTL
-            lda PFIN+7
+            LDA PFIN+7
             sta SDLSTH
-            lda PFIN+8
+            LDA PFIN+8
             sta SDMCTL
-            lda PFIN+9
+            LDA PFIN+9
             sta CHBAS
-            lda PFIN+10
+            LDA PFIN+10
             sta CHACT
             rts
-NEWDL:      ldx #<DLIST
-            lda #>DLIST
-            stx SDLSTL
-            stx DLISTL
+NEWDL:      LDX #<DLIST
+            LDA #>DLIST
+            STX SDLSTL
+            STX DLISTL
             sta SDLSTH
             sta DLISTH
-            lda #$3A
+            LDA #$3A
             sta SDMCTL
             sta DMACLT
-            lda #$E0
+            LDA #$E0
             sta CHBAS
             sta CHBASE
-            lda #$02
+            LDA #$02
             sta CHACT
             sta CHACTL
-            ldx #$04
-COLORLOOP:  lda TABLA,X
+            LDX #$04
+COLORLOOP:  LDA TABLA,X
             sta COLOR0,X
             sta COLPF0,X
             dex
             bpl COLORLOOP
-            lda #<NAME
-            ldx #>NAME
+            LDA #<NAME
+            LDX #>NAME
             sta DLERR
-            stx DLERR+1
+            STX DLERR+1
             rts
-TABLA:      .byte $28,$CA,$00,$46,$00
-CONCHAT:    lda #<MERR
-            ldx #>MERR
+TABLA:      .BY $28,$CA,$00,$46,$00
+CONCHAT:    LDA #<MERR
+            LDX #>MERR
             sta DLERR
-            stx DLERR+1
+            STX DLERR+1
             rts
 ERROR:      jsr CONCHAT
-            lda #$3C
+            LDA #$3C
             sta PACTL
-            lda #$FD
-            jsr LF2B0
-VUELTA:     lda CONSOL
+            LDA #$FD
+            jsr $F2B0
+VUELTA:     LDA CONSOL
             cmp #$06
             bne VUELTA
             jsr SEARCH
             jmp GRAB
-SEARCH:     lda #$34
+SEARCH:     LDA #$34
             sta PACTL
-            ldx #$10
-            stx CDTMV3
-SPEED:      ldx CDTMV3
+            LDX #$10
+            STX CDTMV3
+SPEED:      LDX CDTMV3
             bne SPEED
-SIGUE:      ldx #$FD
-            stx RTCLOK+2
-BUSCA:      lda SKSTAT
+SIGUE:      LDX #$FD
+            STX RTCLOK+2
+BUSCA:      LDA SKSTAT
             and #$10
             beq SIGUE
-            ldx RTCLOK+2
+            LDX RTCLOK+2
             bne BUSCA
             jmp NEWDL
 GBYTE:      cpy NBYTES
@@ -131,31 +144,31 @@ GBYTE:      cpy NBYTES
             eor BAFER+3,Y
             iny
             rts
-GRAB:       lda VCOUNT
+GRAB:       LDA VCOUNT
             bne GRAB
-            lda PFIN
+            LDA PFIN
             beq BYE
             jsr LNEW
             jsr NEWDL
-?GRAB:      ldx #$0B
-MSIO:       lda TABLASIO,X
+?GRAB:      LDX #$0B
+MSIO:       LDA TABLASIO,X
             sta DDEVIC,X
             dex
             bpl MSIO
             jsr SIOV
             bmi ERROR
-            lda BAFER+2
+            LDA BAFER+2
             cmp PFIN
             bcc ERROR
             beq RETURN
             jmp ?GRAB
-RETURN:     lda BAFER+255
+RETURN:     LDA BAFER+255
             sta NBYTES
-            ldx #$02
-C01:        lda BLQ,X
+            LDX #$02
+C01:        LDA BLQ,X
             cmp #$10
             bne C02
-            lda #$19
+            LDA #$19
             sta BLQ,X
             dex
             bpl C01
@@ -165,33 +178,34 @@ C02:        dec BLQ,X
             ldy #$00
             sty ATRACT
             jmp GBYTE
-BYE:        ldx #$E4
+BYE:        LDX #$E4
             ldy #$5F
-            lda #$06
+            LDA #$06
             jsr SETVBV
-            lda #$00
+            LDA #$00
             sta GRACTL
-            ldx #$03
+            LDX #$03
 P01:        sta SIZEP0,X
             dex
             bpl P01
             tay
-            ldx #$0E
+            LDX #$0E
 P02:        sta BUFFER,Y
             iny
             bne P02
-            inc LCE04
+            ;inc LCE04
+            INC P02+1
             dex
             bpl P02
-            lda #$22
+            LDA #$22
             sta SDMCTL
-            lda #$3C
-            ldx #$00
+            LDA #$3C
+            LDX #$00
             sta PACTL
-            txs
-            ldx #$00
+            TXS
+            LDX #$00
             ldy #$07
-            stx APPMHI
+            STX APPMHI
             sty APPMHI+1
             jmp (RUNAD)
 START:      ldy NBYTES
@@ -209,45 +223,45 @@ LOOP:       jsr GBYTE
 MBTM
     jsr GBYTE
 MEMORY
-    sta LFFFF
-    lda MEMORY+1
+    sta $FFFF
+    LDA MEMORY+1
     cmp FINISH
     bne OK
-    lda MEMORY+2
+    LDA MEMORY+2
     cmp FINISH+1
     beq VERFIN
 OK:         inc MEMORY+1
             bne NIM
             inc MEMORY+2
 NIM:        jmp MBTM
-VERFIN:     lda INITAD
+VERFIN:     LDA INITAD
             ora INITAD+1
             beq LOOP
-            ldx #$F0
-            txs
+            LDX #$F0
+            TXS
             sty FLAGY
             jsr NEWL
             jsr RINIT
             jsr LNEW
             jsr SEARCH
             ldy FLAGY
-            ldx #$00
-            txs
-            stx INITAD
-            stx INITAD+1
+            LDX #$00
+            TXS
+            STX INITAD
+            STX INITAD+1
             jmp LOOP
-RINIT:      ldx #$10
-MVRUT:      lda RUTINA,X
+RINIT:      LDX #$10
+MVRUT:      LDA RUTINA,X
             sta BUFAUX,X
             dex
             bpl MVRUT
             jmp BUFAUX
-RUTINA:     lda #$3C
+RUTINA:     LDA #$3C
             sta PACTL
-            jsr ?RUTINA
-            lda #$FE
+            jsr $110E    ;?RUTINA
+            LDA #$FE
             sta PORTB
             rts
             jmp (INITAD)
-PFIN:       .byte $00
+PFIN:       .BY $00
 .endp
